@@ -1,24 +1,9 @@
-# Airline-system-
-
-
-
-
-
-
-
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <ctime>
 #include <sstream>
-
 using namespace std;
-
-#define MAX_PASSENGERS 100
-#define MAX_FLIGHTS 100
-#define MAX_TICKETS 200
-#define MAX_BOOKINGS 10
-
 // Base User class
 class User {
 public:
@@ -34,19 +19,19 @@ public:
         cout<<"\t\t\t\t\t\t\t\t<----------User Profile---------->"<<endl;
         cout<<"\n\t\t\t\t\t\t\t\tUsername: "<<username<<endl;
         cout<<"\t\t\t\t\t\t\t\tName: "<< name<<endl;
-        cout<<"\t\t\t\t\t\t\t\tEmail: "<<email<<endl;;
+        cout<<"\t\t\t\t\t\t\t\tEmail: "<<email<<endl;
     }
 };
 
 // Passenger class
 class Passenger : public User {
 public:
-    int bookings[MAX_BOOKINGS];
+    int bookings[10];
     int bookingCount;
 
     Passenger(string uname="",string pwd="",string n="",string e="")
         : User(uname,pwd,n,e),bookingCount(0) {
-        for (int i=0;i<MAX_BOOKINGS;i++) 
+        for (int i=0;i<10;i++) 
             bookings[i]=-1;
     }
     void viewProfile() const override {
@@ -106,13 +91,13 @@ public:
 // AirlineSystem class
 class AirlineSystem {
 public:
-    Passenger passengers[MAX_PASSENGERS];
+    Passenger passengers[100];
     int passengerCount=0;
 
-    Flight flights[MAX_FLIGHTS];
+    Flight flights[100];
     int flightCount=0;
 
-    Ticket tickets[MAX_TICKETS];
+    Ticket tickets[200];
     int ticketCount=0;
 
     Passenger* currentPassenger=nullptr;
@@ -121,33 +106,37 @@ public:
 
     // Find passenger by username
     Passenger* findPassenger(const string &username) {
-        for(int i=0;i<passengerCount;i++)
-            if(passengers[i].username==username)
+        for(int i=0;i<passengerCount;i++){
+        	 if(passengers[i].username==username)
                 return &passengers[i];
+		}
         return nullptr;
     }
 
     // Find flight by ID
     Flight* findFlight(int id) {
-        for(int i=0;i<flightCount;i++)
+        for(int i=0;i<flightCount;i++){
             if(flights[i].id==id)
-                return &flights[i];
+                return &flights[i];	
+		}
         return nullptr;
     }
 
     // Find ticket by ID
     Ticket* findTicket(const string &ticketId) {
-        for(int i=0;i<ticketCount;i++)
-            if(tickets[i].ticketId==ticketId && !tickets[i].isCancelled)
+        for(int i=0;i<ticketCount;i++){
+        	 if(tickets[i].ticketId==ticketId && !tickets[i].isCancelled)
                 return &tickets[i];
+		}
         return nullptr;
     }
 
     // Check if current passenger booked a flight
     bool hasBookedFlight(int id){
-        for(int i=0;i<currentPassenger->bookingCount;i++)
-            if(currentPassenger->bookings[i]==id)
-                return true;
+        for(int i=0;i<currentPassenger->bookingCount;i++){
+        if(currentPassenger->bookings[i]==id)
+           return true;	
+		}
         return false;
     }
 
@@ -162,12 +151,12 @@ public:
     }
 
     // Get current date as string
-    string getCurrentDate() {
+    string getCurrentDate(){
         time_t now = time(0);
         tm* ltm = localtime(&now);
-        return to_string(ltm->tm_mday) + "/" + to_string(ltm->tm_mon + 1) + "/" + to_string(ltm->tm_year + 1900);
+        return to_string(ltm->tm_mday)+"/" + to_string(ltm->tm_mon + 1) + "/" + to_string(ltm->tm_year + 1900);
     }
-    
+	    
     void saveFlightsToFile() {
         ofstream out("flights.txt");
         for (int i=0;i<flightCount;i++) {
@@ -191,19 +180,23 @@ public:
             stringstream ss(line);
             string temp;
             Flight f;
-            getline(ss, temp, ','); f.id = stoi(temp);
+            getline(ss, temp, ','); 
+			f.id = stoi(temp);
             getline(ss, f.name, ',');
             getline(ss, f.source, ',');
             getline(ss, f.destination, ',');
             getline(ss, f.date, ',');
             getline(ss, f.time, ',');
-            getline(ss, temp, ','); f.totalSeats = stoi(temp);
-            getline(ss, temp, ','); f.availableSeats = stoi(temp);
-            getline(ss, temp, ','); f.price = stof(temp);
+            getline(ss, temp, ','); 
+			f.totalSeats = stoi(temp);
+            getline(ss, temp, ','); 
+			f.availableSeats = stoi(temp);
+            getline(ss, temp, ','); 
+			f.price = stof(temp);
             flights[flightCount++] = f;
             if (f.id >= flightIdCounter) flightIdCounter = f.id + 1;
         }
-        in.close();
+		  in.close();
     }
 
     void savePassengersToFile() {
@@ -211,7 +204,6 @@ public:
         for (int i=0;i<passengerCount;i++) {
             Passenger& p=passengers[i];
             out<<p.username<< ","<<p.password<<","<<p.name<<","<<p.email<< ","<<p.bookingCount;
-            
             for(int j=0;j<p.bookingCount;j++) {
                 out<<","<<p.bookings[j];
             }
@@ -220,7 +212,7 @@ public:
         out.close();
     }
 
-    void loadPassengersFromFile() {
+    void loadPassengersFromFile(){
         ifstream in("passengers.txt");
         string line;
         while (getline(in, line)) {
@@ -233,7 +225,7 @@ public:
             getline(ss, p.email, ',');
             getline(ss, temp, ','); p.bookingCount = stoi(temp);
             for (int i = 0; i < p.bookingCount; i++) {
-                getline(ss, temp, ',');
+            getline(ss, temp, ',');
                 p.bookings[i] = stoi(temp);
             }
             passengers[passengerCount++] = p;
@@ -265,8 +257,10 @@ public:
             getline(ss, temp, ','); t.flightId = stoi(temp);
             getline(ss, t.passengerUsername, ',');
             getline(ss, t.bookingDate, ',');
-            getline(ss, temp, ','); t.totalPrice = stof(temp);
-            getline(ss, temp, ','); t.isCancelled = (temp == "1");
+            getline(ss, temp, ','); 
+			t.totalPrice = stof(temp);
+            getline(ss, temp, ','); 
+			t.isCancelled = (temp == "1");
             
             if (!t.isCancelled) {
                 tickets[ticketCount++] = t;
@@ -315,8 +309,8 @@ public:
         }
     }
 
-    // Remove a booking from currentPassenger by flight ID
-    bool removeBooking(int flightId) {
+    // Remove booking  currentPassenger by flight ID
+    bool removeBooking(int flightId){
         for (int i=0;i<currentPassenger->bookingCount;i++) {
             if(currentPassenger->bookings[i]==flightId) {
                 // Shift left bookings array
@@ -326,21 +320,21 @@ public:
                 currentPassenger->bookingCount--;
                 currentPassenger->bookings[currentPassenger->bookingCount]=-1;
                 return true;
-            }
+           }
         }
         return false;
     }
 
 public:
-    void aboutUs() {
+    void aboutUs(){
         cout<<"\n\n\n\n\n\n\n"
             <<"\t\t\t\t\t<-------------------------------- About Us ------------------------------->\n"
             <<"\n\t\t\t\t\tWelcome to Hazel Blue Airline where we believe that every journey is more\n"
             <<"\t\t\t\t\tthan just reaching a destination. Your safety, connection, and comfort\n"
             <<"\t\t\t\t\tare our priorities. We believe that aviation is proof that with\n"
             <<"\t\t\t\t\tdetermination, we have the capacity to achieve the impossible.\n"
-            <<"\n\t\t\t\t\tThis airline was founded by Three members whose names are given below:\n"
-            <<"\t\t\t\t\tAhmad, Saqib, Umer with a passion for aviation and excellence.\n"
+            <<"\n\t\t\t\t\tThis airline was founded by Five members whose names are given below:\n"
+            <<"\t\t\t\t\tAhmad, Saqib, Umer, Unbreen, Ukasha with a passion for aviation and excellence.\n"
             <<"\t\t\t\t\tTogether, we navigate the skies with ease and comfort, creating unforgettable\n"
             <<"\t\t\t\t\tjourneys with you.\n"
             <<"\n\t\t\t\t\t<------------------------------------------------------------------------>\n";
@@ -418,7 +412,7 @@ public:
     }
 
     void registerPassenger(){
-        if (passengerCount>=MAX_PASSENGERS) {
+        if (passengerCount>=100) {
             cout<<"\n\t\t\t\t\t\t\t\t\tPassenger limit reached. Cannot register more.\n";
             return;
         }
@@ -427,8 +421,8 @@ public:
         cout <<"\t\t\t\t\t\t\t\t<----------Register New Passenger---------->"<<endl;
         cout<<"\n\t\t\t\t\t\t\t\tUsername: ";
         cin>>username;
-        if (findPassenger(username) != nullptr) {
-            cout<<"\n\\t\t\t\t\t\t\t\tUsername already exists.\n";
+        if (findPassenger(username)!=nullptr) {
+            cout<<"\n\t\t\t\t\t\t\t\tUsername already exists.\n";
             return;
         }
         cout<<"\t\t\t\t\t\t\t\tPassword: ";
@@ -516,7 +510,7 @@ public:
     }
 
     void addFlightMenu(){
-        if (flightCount>=MAX_FLIGHTS) {
+        if (flightCount>=100) {
             cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\t\tFlight capacity full. Cannot add more flights.\n";
             return;
         }
@@ -542,7 +536,7 @@ public:
         cin>>price;
 
         flights[flightCount++] = Flight(flightIdCounter++, name, source, dest, date, time, seats, price);
-        cout << "Flight added successfully.\n";
+        cout<<"\n\t\t\t\t\t\t\t\tFlight added successfully.\n";
         saveFlightsToFile();
     }
 
@@ -645,7 +639,7 @@ public:
     }
 
     void bookTicket() {
-        if (currentPassenger->bookingCount >= MAX_BOOKINGS) {
+        if (currentPassenger->bookingCount>=10) {
             cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\t\tBooking limit reached. Cancel existing booking to add new.\n";
             return;
         }
@@ -658,7 +652,7 @@ public:
             cout<<"\n\n\n\n\n\n\t\t\t\t\t\t\tInvalid Flight ID.\n";
             return;
         }
-        if (flight->availableSeats <= 0) {
+        if (flight->availableSeats<=0) {
             cout<<"t\t\t\t\t\t\tNo seats available on this flight.\n";
             return;
         }
@@ -684,37 +678,36 @@ public:
         saveFlightsToFile();
     }
 
-    void viewMyBookings() {
-        if (currentPassenger->bookingCount == 0) {
+    void viewMyBookings(){
+        if (currentPassenger->bookingCount==0){
             cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\tYou have no bookings.\n";
             return;
         }
         cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\tYour Bookings:\n";
-        for (int i = 0; i < currentPassenger->bookingCount; i++) {
-            int fid = currentPassenger->bookings[i];
-            Flight* f = findFlight(fid);
+        for (int i=0;i<currentPassenger->bookingCount;i++) {
+            int fid=currentPassenger->bookings[i];
+            Flight* f=findFlight(fid);
             if (f) {
                 cout<<"\t\t\t\t\t\t\tFlight ID: "<<f->id<<", "<<f->name<<", From "<<f->source<<" to "<<f->destination 
                     <<", Date: "<<f->date<<", Time: "<<f->time<<", Price: $"<<f->price<<"\n";
             }
         }
     }
-
-    void viewTicketDetails() {
-        if (currentPassenger->bookingCount == 0) {
+    void viewTicketDetails(){
+        if (currentPassenger->bookingCount==0) {
             cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\t\tYou have no bookings.\n";
             return;
         }
 
         // First show all tickets for this passenger
-        bool foundAny = false;
-        for (int i = 0; i < ticketCount; i++) {
-            if (tickets[i].passengerUsername == currentPassenger->username && !tickets[i].isCancelled) {
-                Flight* flight = findFlight(tickets[i].flightId);
-                if (flight) {
+        bool foundAny=false;
+        for (int i=0;i<ticketCount;i++){
+            if (tickets[i].passengerUsername==currentPassenger->username&&!tickets[i].isCancelled){
+                Flight* flight=findFlight(tickets[i].flightId);
+                if(flight){
                     cout<<"\n\n\t\t\t\t\t\t\t\tTicket ID: "<<tickets[i].ticketId
-                         <<"\n\t\t\t\t\t\t\t\tFlight: "<<flight->name <<" (" 
-                         <<flight->source << " to "<<flight->destination<< ")"
+                         <<"\n\t\t\t\t\t\t\t\tFlight: "<<flight->name<<" (" 
+                         <<flight->source << " to "<<flight->destination<<")"
                          <<"\n\t\t\t\t\t\t\t\tDate: "<<flight->date<<" at "<<flight->time
                          <<"\n\t\t\t\t\t\t\t\t-----------------------------------\n";
                     foundAny = true;
@@ -722,7 +715,7 @@ public:
             }
         }
 
-        if (!foundAny) {
+        if(!foundAny) {
             cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\t\tNo tickets found.\n";
             return;
         }
@@ -731,29 +724,29 @@ public:
         string tid;
         cin>>tid;
 
-        for (int i=0;i<ticketCount;i++) {
-            if (tickets[i].ticketId==tid && 
-                tickets[i].passengerUsername == currentPassenger->username &&
+        for (int i=0;i<ticketCount;i++){
+            if (tickets[i].ticketId==tid&& 
+                tickets[i].passengerUsername==currentPassenger->username&&
                 !tickets[i].isCancelled) {
                 system("cls");
                 displayTicketDetails(tickets[i]);
                 return;
             }
         }
-        cout << "\n\n\n\n\n\n\n\t\t\t\t\t\t\tTicket not found.\n";
+        cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\tTicket not found.\n";
     }
 
-    void cancelBooking() {
-        if (currentPassenger->bookingCount == 0) {
+    void cancelBooking(){
+        if (currentPassenger->bookingCount==0){
             cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\tYou have no bookings to cancel.\n";
             return;
         }
         cout<<"\n\n\n\n\n\n\n\t\t\t\t\t\t\tYour bookings:\n";
-        for(int i=0;i<currentPassenger->bookingCount;i++) {
+        for(int i=0;i<currentPassenger->bookingCount;i++){
             int fid=currentPassenger->bookings[i];
             Flight* f=findFlight(fid);
             if(f){
-                cout<<"\t\t\t\t\t\t\t"<<fid<<": "<<f->name<< " from "<< f->source<<" to "<<f->destination<<" on "<<f->date<< "\n";
+                cout<<"\t\t\t\t\t\t\t"<<fid<<": "<<f->name<< " from "<<f->source<<" to "<<f->destination<<" on "<<f->date<< "\n";
             }
         }
         cout<<"\n\n\t\t\t\t\t\t\tEnter Flight ID to cancel: ";
@@ -764,15 +757,15 @@ public:
             return;
         }
         // Cancel booking
-        if (removeBooking(fid)) {
-            Flight* flight = findFlight(fid);
+        if (removeBooking(fid)){
+            Flight* flight=findFlight(fid);
             if (flight) {
                 flight->availableSeats++;
                 // Mark ticket as cancelled
-                for (int i = 0; i < ticketCount; i++) {
-                    if (tickets[i].flightId == fid && 
-                        tickets[i].passengerUsername == currentPassenger->username) {
-                        tickets[i].isCancelled = true;
+                for (int i=0;i<ticketCount;i++) {
+                    if (tickets[i].flightId==fid && 
+                        tickets[i].passengerUsername==currentPassenger->username) {
+                        tickets[i].isCancelled=true;
                         break;
                     }
                 }
